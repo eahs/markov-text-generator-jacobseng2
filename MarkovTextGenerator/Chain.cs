@@ -42,8 +42,24 @@ namespace MarkovTextGenerator
 
         public void AddString (String sentence)
         {
-            // TODO: Break sentence up into word pairs
+            
+            if (sentence.Length == 0)
+            {
+                return;
+            }
+            
+            
+            String[] list = sentence.Split(new char[] {' ', ',','!','?','.'}, StringSplitOptions.RemoveEmptyEntries);
+            
             // TODO: Add each word pair to the chain
+            for (int i = 0; i < list.Length - 1; i++)
+            {
+                AddPair(list[i], list[i + 1]);
+                if (i == list.Length)
+                {
+                    AddPair(list[i], "");
+                }
+            }
             // TODO: The last word of any sentence will be paired up with
             //       an empty string to show that it is the end of the sentence
         }
@@ -89,15 +105,28 @@ namespace MarkovTextGenerator
         /// <returns></returns>
         public String GetNextWord (String word)
         {
+            Word best = null;
             if (words.ContainsKey(word))
             {
                 List<Word> choices = words[word];
                 double test = rand.NextDouble();
-
-                Console.WriteLine("I picked the number " + test); 
+                double comp = 0;
+                foreach (var a in choices)
+                {
+                    comp += a.Probability;
+                    if (comp > test) ;                    {
+                        best = a;
+                    }
+                    
+                }
             }
 
-            return "idkbbq";
+            if (best != null)
+            {
+                return best.ToString();
+            }
+
+            return "";
         }
 
         /// <summary>
@@ -108,7 +137,16 @@ namespace MarkovTextGenerator
         /// <returns></returns>
         public String GenerateSentence(string startingWord)
         {
-            return "";
+            String word = startingWord;
+            String sentence = startingWord;
+            while (GetNextWord(word) != "")
+            {
+                word = GetNextWord(word);
+                sentence = sentence + " " + GetNextWord(word);
+                //Console.Write(word);
+            }
+
+            return sentence;
         }
         
         /// <summary>
